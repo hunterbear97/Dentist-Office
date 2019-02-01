@@ -5,22 +5,41 @@ public class PhoneNumber {
 	private int prefix;
 	private int line;
 	
+	public PhoneNumber() {
+		
+	}
+	
+	public PhoneNumber(int areaCode, int prefix, int line) {
+		this.setAreaCode(areaCode);
+		this.setPrefix(prefix);
+		this.setLine(line);
+	}
+	
 	public int getAreaCode() {
 		return areaCode;
 	}
 	public void setAreaCode(int areaCode) {
+		if(areaCode <= 0) {
+			throw new IllegalArgumentException("\"areaCode\" cannot be less than 1");
+		}
 		this.areaCode = areaCode;
 	}
 	public int getPrefix() {
 		return prefix;
 	}
 	public void setPrefix(int prefix) {
+		if(prefix <= 0) {
+			throw new IllegalArgumentException("\"prefix\" cannot be less than 1");
+		}
 		this.prefix = prefix;
 	}
 	public int getLine() {
 		return line;
 	}
 	public void setLine(int line) {
+		if(areaCode <= 0) {
+			throw new IllegalArgumentException("\"line\" cannot be less than 1");
+		}
 		this.line = line;
 	}
 	
