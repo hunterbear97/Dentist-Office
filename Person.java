@@ -66,4 +66,10 @@ abstract public class Person {
 		return this.getUid() + " | " + this.getLastName() + ", " + this.getFirstName() +  ", Email: " + this.getEmail() + ", Phone: " + this.getPhone();
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		Person other = (Person) obj;
+		return this.getFirstName().equalsIgnoreCase(other.getFirstName()) && this.getLastName().equalsIgnoreCase(other.getLastName());
+	}
+	
 }
