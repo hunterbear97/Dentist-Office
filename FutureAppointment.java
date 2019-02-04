@@ -1,5 +1,6 @@
 package edu.neumont.lytle.dentistoffice.models;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,22 @@ public class FutureAppointment extends Appointment{
 	private List<Provider> providers = new ArrayList<>();
 	private List<Procedure> procedures = new ArrayList<>();
 	
+	public FutureAppointment() {}
 	
+	
+	
+	
+	public FutureAppointment(LocalDateTime appointmentDate, Patient patient, List<Provider> providers,
+			List<Procedure> procedures) {
+		super(appointmentDate);
+		this.setPatient(patient);
+		this.setProviders(providers);
+		this.setProviders(providers);
+	}
+
+
+
+
 	public Patient getPatient() {
 		return patient;
 	}
