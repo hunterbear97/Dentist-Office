@@ -5,6 +5,12 @@ import java.time.LocalDateTime;
 public class Appointment {
 	private LocalDateTime appointmentDate;
 
+	public Appointment() {}
+	
+	public Appointment(LocalDateTime appointmentDate) {
+		this.setAppointmentDate(appointmentDate);
+	}
+	
 	public LocalDateTime getAppointmentDate() {
 		return appointmentDate;
 	}
