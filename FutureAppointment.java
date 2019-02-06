@@ -50,10 +50,10 @@ public class FutureAppointment extends Appointment{
 		StringBuilder sb = new StringBuilder();
 		List<Provider> p = this.getProviders();
 		for(int i = 0; i < proceduresByProvider.size(); i++) {
-			sb.append("Provider: ").append(p.get(i)).append(", Procedures: ").append(proceduresByProvider.get(p.get(i)).toString()).append("\n");
+			sb.append("\n, Provider: ").append(p.get(i)).append(", Procedures: ").append(proceduresByProvider.get(p.get(i)).toString()).append("\n");
 		}
 		
-		return sb.toString();
+		return super.toString() + sb.toString();
 		
 	}
 //	@Override
