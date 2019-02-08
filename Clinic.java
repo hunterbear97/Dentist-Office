@@ -20,6 +20,38 @@ public class Clinic {
 	}
 	
 	/**
+	 * This method will return the list of patients currently in the Clinic
+	 * @return List<Patient>
+	 */
+	public List<Patient> getPatients() {
+		return patients;
+	}
+	
+	/**
+	 * This method will return the list of payments in the system
+	 * @return List<Payments>
+	 */
+	public List<Payment> getPayments() {
+		return this.payments;
+	}
+	
+	/**
+	 * This method will return the list of providers in the system
+	 * @return List<Provider>
+	 */
+	public List<Provider> getProviders() {
+		return this.providers;
+	}
+	
+	/**
+	 * This will return the list of appointments, both past and future, in the system
+	 * @return List<Appointment>
+	 */
+	public List<Appointment> getAppointments() {
+		return this.appointments;
+	}
+	
+	/**
 	 * This method goes through all appointments and returns what is upcoming
 	 * @return List<FutureAppointment>
 	 */
@@ -55,6 +87,31 @@ public class Clinic {
 	 */
 	
 	public List<Provider> searchProviders(ProviderSearchCriteria psc){
+		List<Provider> providers = new ArrayList<>(this.providers);
+		
+		for(Provider p : new ArrayList<>(providers)) {
+			boolean removeThis = false;
+			if(psc.getFirstName() != null) {
+				if(!psc.getFirstName().equals(p.getFirstName())) {
+					removeThis = true;
+				}
+			}
+			if(psc.getLastName() != null) {
+				if(!psc.getLastName().equals(p.getLastName())) {
+					removeThis = true;
+				}
+			}
+			if(psc.getTitle() != null) {
+				if(!psc.getTitle().equals(p.getTitle())) {
+					removeThis = true;
+				}
+			}
+			
+			if(removeThis) {
+				providers.remove(p);
+			}
+		}
+		
 		return providers;
 	}
 	
@@ -110,19 +167,33 @@ public class Clinic {
 	}
 	
 	/**
-	 * THis method will take in the criteria to find a patient and return a list of the patients that fit the criteria
+	 * This method will take in the criteria to find a patient and return a list of the patients that fit the criteria
 	 * 
 	 * @param PatientSearchCriteria criteria
 	 * @return List<Patient>
 	 */
-	
 	public List<Patient> searchPatients(PatientSearchCriteria criteria) {
-		List<Patient> patients = new ArrayList<>();
-		for(Patient p : this.patients) {
-			if(criteria.getFirstName().equals(p.getFirstName()) ||
-					criteria.getLastName().equals(p.getLastName()) ||
-					criteria.getCompanyName().equals(p.getInsurance().getCompany())) {
-				patients.add(p);
+		List<Patient> patients = new ArrayList<>(this.patients);
+		for(Patient p : new ArrayList<>(patients)) {
+			boolean removeThis = false;
+			if(criteria.getFirstName() != null) {
+				if(!criteria.getFirstName().equals(p.getFirstName())) {
+					removeThis = true;
+				}
+			}
+			if(criteria.getLastName() != null) {
+				if(!criteria.getLastName().equals(p.getLastName())) {
+					removeThis = true;
+				}
+			}
+			if(criteria.getCompanyName() != null) {
+				if(!criteria.getCompanyName().equals(p.getInsurance().getCompany())) {
+					removeThis = true;
+				}
+			}
+			
+			if(removeThis) {
+				patients.remove(p);
 			}
 		}
 		return patients;
@@ -238,7 +309,12 @@ public class Clinic {
 		
 		return pastAppointments;
 	}
-	
+
+	/**
+	 * This method will take in a list of any object and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<Object> list
+	 * @return String
+	 */
 	public String listToString(List<Object> list) {
 		
 		
