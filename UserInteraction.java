@@ -1,18 +1,20 @@
 package edu.neumont.lytle.dentistoffice.view;
 
-import edu.neumont.lytle.dentistoffice.model.ProviderSearchCriteria;
 import edu.neumont.lytle.dentistoffice.models.Appointment;
 import edu.neumont.lytle.dentistoffice.models.AppointmentSearchCriteria;
 import edu.neumont.lytle.dentistoffice.models.Patient;
 import edu.neumont.lytle.dentistoffice.models.PatientSearchCriteria;
 import edu.neumont.lytle.dentistoffice.models.Provider;
+import edu.neumont.lytle.dentistoffice.models.ProviderSearchCriteria;
 import edu.neumont.lytle.dentistoffice.models.User;
 
 public interface UserInteraction {
 	
-	void inputUsernameAndPassword();
+	String inputUsername();
 	
-	int userMenuSelection();
+	String inputPassword();
+	
+	int userMenuSelection(boolean isAdmin);
 	
 	PatientSearchCriteria searchPatients();
 	
@@ -45,5 +47,13 @@ public interface UserInteraction {
 	User addUser();
 	
 	String changePassword();
+	
+	void noFoundUser();
+	
+	void invalidPassword();
+	
+	int printMent();
+	
+	void printList(String string);
 	
 }
