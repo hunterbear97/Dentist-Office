@@ -11,10 +11,11 @@ public class Payment {
 	
 	public Payment() {}
 	
-	public Payment(double amount, Patient patient, PaymentMethod paymentMethod) {
+	public Payment(double amount, Patient patient, PaymentMethod paymentMethod, LocalDate dateOfPayment) {
 		this.setAmount(amount);
 		this.setPatient(patient);
 		this.setPaymentMethod(paymentMethod);
+		this.setDateOfPayment(dateOfPayment);
 
 	}
 	
