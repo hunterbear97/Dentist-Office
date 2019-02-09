@@ -1,10 +1,17 @@
 package edu.neumont.lytle.dentistoffice.models;
 
+import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Clinic {
+public class Clinic implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private List<User> users = new ArrayList<>();
 	private List<Patient> patients = new ArrayList<>();
 	private List<Payment> payments = new ArrayList<>();
@@ -116,10 +123,57 @@ public class Clinic {
 	}
 	
 	/**
+	 * This method will take in an instance of Provider and add it into the system
+	 * @param Provider provider
+	 */
+	public void addProvider(Provider provider) {
+		if(provider == null) {
+			throw new IllegalArgumentException("\"provider\" cannot be null");
+		}
+		providers.add(provider);
+	}
+	
+	/**
+	 * This method will take in an instance of Patient and add it into the system
+	 * @param Patient patient
+	 */
+	public void addPatient(Patient patient) {
+		if(patient == null) {
+			throw new IllegalArgumentException("\"patient\" cannot be null");
+		}
+		patients.add(patient);
+	}
+	
+	/**
+	 * This method will take in an instance of User and add it into the system
+	 * @param User user
+	 */
+	public void addUser(User user) {
+		if(user == null) {
+			throw new IllegalArgumentException("\"user\" cannot be null");
+		}
+		users.add(user);
+	}
+	
+	/**
+	 * This method will take in an instance of Appointment and add it into the system
+	 * @param Appointment appointment
+	 */
+	public void addAppointment(Appointment appointment) {
+		if(appointment == null) {
+			throw new IllegalArgumentException("\"appointment\" cannot be null");
+		}
+		appointments.add(appointment);
+	}
+	
+	/**
 	 * This method will add a payment into the list of payments	
 	 * @param Payment payment
 	 */
 	public void recievePayment(Payment payment) {
+		if(payment == null) {
+			throw new IllegalArgumentException("\"payment\" cannot be null");
+		}
 		payments.add(payment);
 	}
 	
@@ -292,12 +346,16 @@ public class Clinic {
 			if(asc.getProvider() != null || asc.getProcedureCode() != null) {
 				List<ProcedureRecord> procedures = a.getProcedures();
 				for(ProcedureRecord p : procedures) {
-					if(!p.getProvider().equals(asc.getProvider())) {
-						removeThis = true;
+					if(asc.getProvider() != null)
+					{
+						if(!p.getProvider().equals(asc.getProvider())) {
+							removeThis = true;
+						}
 					}
-					
-					if(!p.getProcedure().getCode().equals(asc.getProcedureCode())) {
-						removeThis = true;
+					if(asc.getProcedureCode() != null) {
+						if(!p.getProcedure().getCode().equals(asc.getProcedureCode())) {
+							removeThis = true;
+						}
 					}
 				}
 			}
@@ -311,11 +369,11 @@ public class Clinic {
 	}
 
 	/**
-	 * This method will take in a list of any object and print them out so that every object getsit's own line and has its index right next to it.
-	 * @param List<Object> list
+	 * This method will take in a list of providers and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<Provider> list
 	 * @return String
 	 */
-	public String listToString(List<Object> list) {
+	public String providersToString(List<Provider> list) {
 		
 		
 		StringBuilder sb = new StringBuilder();
@@ -325,5 +383,86 @@ public class Clinic {
 		}
 		
 		return sb.toString();
+	}
+	
+	/**
+	 * This method will take in a list of patients and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<Patient> list
+	 * @return String
+	 */
+	public String patientsToString(List<Patient> list) {
+		
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < list.size(); i++) {
+			sb.append(i).append(": ").append(list.get(i)).append("\n");
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * This method will take in a list of appointments and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<Appointment> list
+	 * @return String
+	 */
+	public String appointmentsToString(List<Appointment> list) {
+		
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < list.size(); i++) {
+			sb.append(i).append(": ").append(list.get(i)).append("\n");
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * This method will take in a list of users and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<User> list
+	 * @return String
+	 */
+	public String usersToString(List<User> list) {
+		
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < list.size(); i++) {
+			sb.append(i).append(": ").append(list.get(i)).append("\n");
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * This method will take in a list of providers and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<Payment> list
+	 * @return String
+	 */
+	public String paymentsToString(List<Payment> list) {
+		
+		
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < list.size(); i++) {
+			sb.append(i).append(": ").append(list.get(i)).append("\n");
+		}
+		
+		return sb.toString();
+	}
+
+	/**
+	 * This method will take in a start date and end date, and then return how much revenue was generated during that time.
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public double getRevenueGenerated(LocalDate startDate, LocalDate endDate) {
+		
+		
+		
+		return 0;
 	}
 }
