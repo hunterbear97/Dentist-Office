@@ -4,7 +4,7 @@ import edu.neumont.lytle.dentistoffice.models.Appointment;
 import edu.neumont.lytle.dentistoffice.models.AppointmentSearchCriteria;
 import edu.neumont.lytle.dentistoffice.models.Patient;
 import edu.neumont.lytle.dentistoffice.models.PatientSearchCriteria;
-import edu.neumont.lytle.dentistoffice.models.Person;
+import edu.neumont.lytle.dentistoffice.models.Procedure;
 import edu.neumont.lytle.dentistoffice.models.Provider;
 import edu.neumont.lytle.dentistoffice.models.ProviderSearchCriteria;
 import edu.neumont.lytle.dentistoffice.models.User;
@@ -21,11 +21,11 @@ public interface UserInterface {
 	
 	ProviderSearchCriteria searchProviders();
 	
-	AppointmentSearchCriteria searchAppointments();
+	AppointmentSearchCriteria searchAppointments(Provider prov, Patient pat);
 	
 	Patient addPatient();
 	
-	Patient removePatient();
+	int removePatient();
 	
 	void editPatient(Patient patient);
 	
@@ -33,9 +33,13 @@ public interface UserInterface {
 	
 	void editProvider(Provider provider);
 
-	Provider removeProvider();
+	int removeProvider();
 	
-	Appointment addAppointment();
+	Procedure addProcedure();
+	
+	String removeProcedure();
+	
+	Appointment addAppointment(Patient pat);
 	
 	void editAppointment(Appointment appointment);
 	
@@ -43,11 +47,9 @@ public interface UserInterface {
 	
 	int adminMenu();
 	
-	User removeUser();
+	String removeUser();
 	
 	User addUser();
-	
-	String changePassword();
 	
 	void noFoundUser();
 	
@@ -56,5 +58,11 @@ public interface UserInterface {
 	int printMent();
 	
 	void printList(String string);
+
+	int getPatientUID();
+
+	void editProcedure(Procedure procedure);
+
+	void changePassword(User user);
 	
 }

@@ -17,6 +17,7 @@ public class Clinic implements Serializable{
 	private List<Payment> payments = new ArrayList<>();
 	private List<Provider> providers = new ArrayList<>();
 	private List<Appointment> appointments = new ArrayList<>();
+	private List<Procedure> procedures = new ArrayList<>();
 	
 	/**
 	 * This method will retrieve the list of users in the clinic
@@ -58,6 +59,15 @@ public class Clinic implements Serializable{
 		return this.appointments;
 	}
 	
+	
+	/**
+	 * This will return the list of procedures in the system
+	 * @return List<Procedure>
+	 */
+	public List<Procedure> getProcedures() {
+		return this.procedures;
+	}
+
 	/**
 	 * This method goes through all appointments and returns what is upcoming
 	 * @return List<FutureAppointment>
@@ -144,6 +154,16 @@ public class Clinic implements Serializable{
 		patients.add(patient);
 	}
 	
+	/**
+	 * This method will take in an instance of Procedure and add it into the system
+	 * @param Procedure procedure
+	 */
+	public void addProcedure(Procedure procedure) {
+		if(procedure == null) {
+			throw new IllegalArgumentException("\"procedure\" cannot be null");
+		}
+		procedures.add(procedure);
+	}
 	/**
 	 * This method will take in an instance of User and add it into the system
 	 * @param User user
@@ -465,4 +485,5 @@ public class Clinic implements Serializable{
 		
 		return 0;
 	}
+
 }
