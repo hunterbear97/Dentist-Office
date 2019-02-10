@@ -2,6 +2,7 @@ package edu.neumont.lytle.dentistoffice.models;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,6 @@ public class Clinic implements Serializable{
 	private List<Payment> payments = new ArrayList<>();
 	private List<Provider> providers = new ArrayList<>();
 	private List<Appointment> appointments = new ArrayList<>();
-	private List<Procedure> procedures = new ArrayList<>();
 	
 	/**
 	 * This method will retrieve the list of users in the clinic
@@ -59,15 +59,6 @@ public class Clinic implements Serializable{
 		return this.appointments;
 	}
 	
-	
-	/**
-	 * This will return the list of procedures in the system
-	 * @return List<Procedure>
-	 */
-	public List<Procedure> getProcedures() {
-		return this.procedures;
-	}
-
 	/**
 	 * This method goes through all appointments and returns what is upcoming
 	 * @return List<FutureAppointment>
@@ -154,16 +145,6 @@ public class Clinic implements Serializable{
 		patients.add(patient);
 	}
 	
-	/**
-	 * This method will take in an instance of Procedure and add it into the system
-	 * @param Procedure procedure
-	 */
-	public void addProcedure(Procedure procedure) {
-		if(procedure == null) {
-			throw new IllegalArgumentException("\"procedure\" cannot be null");
-		}
-		procedures.add(procedure);
-	}
 	/**
 	 * This method will take in an instance of User and add it into the system
 	 * @param User user
@@ -475,15 +456,143 @@ public class Clinic implements Serializable{
 
 	/**
 	 * This method will take in a start date and end date, and then return how much revenue was generated during that time.
-	 * @param startDate
-	 * @param endDate
-	 * @return
+	 * Depending on the boolean, it can either be daily totals or monthly totals
+	 * @param LocalDateTime startDate
+	 * @param LocalDateTime endDate
+	 * @param boolean dailyRevenue
+	 * @return String
 	 */
-	public double getRevenueGenerated(LocalDate startDate, LocalDate endDate) {
+	public String getRevenueGenerated(LocalDateTime startDate, LocalDateTime endDate, boolean dailyRevenue) {
+		StringBuilder sb = new StringBuilder();
+		AppointmentSearchCriteria asc = new AppointmentSearchCriteria();
+		asc.setStartDate(startDate);
+		asc.setEndDate(endDate);
+		
+		List<Appointment> appointments = this.searchAppointments(asc);
+		List<AppointmentRecord> records = new ArrayList<>();
+		
+		for(Appointment a : appointments) {
+			if(a instanceof AppointmentRecord) {
+				records.add((AppointmentRecord) a);
+			}
+		}
+		
+		int monthCompareInt = endDate.getMonthValue();
+		
+		if(endDate.getYear() - startDate.getYear() != 0) {
+			monthCompareInt += (endDate.getYear() - startDate.getYear()) * 12;
+		}
+		
+		if(!dailyRevenue) {
+			
+			for(int m = startDate.getMonthValue(); m <= monthCompareInt; m++) {
+				sb.append("Month ").append(m%12).append(" revanue: $");
+				double total = 0;
+				
+				
+				for(AppointmentRecord ar : records) {
+					if(ar.getAppointmentDate().getMonthValue() == m){
+						List<ProcedureRecord> procedures = ar.getProcedures();
+						for(ProcedureRecord p :procedures) {
+							total += p.getCost();
+						}
+					}
+				}
+				
+				sb.append(total).append("\n");
+				
+			}
+			
+		}
 		
 		
+		else if(dailyRevenue) {
+			LocalDateTime next = startDate.minusDays(1);
+			while((next = next.plusDays(1)).isBefore(endDate.plusDays(1))){
+				double total = 0;
+				sb.append(next.toString()).append(" revanue: $");
+				for(AppointmentRecord ar : records) {
+					if(ar.getAppointmentDate().equals(next)){
+						List<ProcedureRecord> procedures = ar.getProcedures();
+						for(ProcedureRecord p :procedures) {
+							total += p.getCost();
+						}
+					}
+				}
+				
+				sb.append(total).append("\n");
+				
+			}
+			
+		}
 		
-		return 0;
+		return sb.toString();
 	}
-
+	
+	
+	/**
+	 * This method will take a start date and an end date and return how much money was collected during that time. Depending on the boolean, it can either be daily or monthly totals.
+	 * @param LocalDate startDate
+	 * @param LocalDate endDate
+	 * @param boolan dailyRevenue
+	 * @return String
+	 */
+	public String getCollections(LocalDate startDate, LocalDate endDate, boolean dailyRevenue) {
+		StringBuilder sb = new StringBuilder();
+		
+		List<Payment> paymentsInQuestion = new ArrayList<>();
+		
+		for(Payment p : payments) {
+			if(p.getDateOfPayment().isBefore(endDate) && p.getDateOfPayment().isAfter(startDate)) {
+				paymentsInQuestion.add(p);
+			}
+		}
+		
+		int monthCompareInt = endDate.getMonthValue();
+		
+		if(endDate.getYear() - startDate.getYear() != 0) {
+			monthCompareInt += (endDate.getYear() - startDate.getYear()) * 12;
+		}
+		
+		if(!dailyRevenue) {
+			
+			for(int m = startDate.getMonthValue(); m <= monthCompareInt; m++) {
+				sb.append("Month ").append(m%12).append(" collections: $");
+				double total = 0;
+				
+				
+				for(Payment p : paymentsInQuestion) {
+					if(p.getDateOfPayment().getMonthValue() == m){
+						total += p.getAmount();
+					}
+				}
+				
+				sb.append(total).append("\n");
+				
+			}
+			
+		}
+		
+		
+		else if(dailyRevenue) {
+			LocalDate next = startDate.minusDays(1);
+			while((next = next.plusDays(1)).isBefore(endDate.plusDays(1))){
+				double total = 0;
+				sb.append(next.toString()).append(" collections: $");
+				for(Payment p : paymentsInQuestion) {
+					if(p.getDateOfPayment().equals(next)){
+						total += p.getAmount();
+					}
+				}
+				
+				sb.append(total).append("\n");
+				
+			}
+			
+		}
+		
+		return sb.toString();
+	}
+	
+	
 }
