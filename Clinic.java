@@ -1,5 +1,12 @@
 package edu.neumont.lytle.dentistoffice.models;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +19,8 @@ public class Clinic implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private static final String DIRECTORY = "clinics";
 	
 	private List<User> users = new ArrayList<>();
 	private List<Patient> patients = new ArrayList<>();
@@ -594,5 +603,53 @@ public class Clinic implements Serializable{
 		return sb.toString();
 	}
 	
+	/**
+	 * This method will save the Clinic to the file clinics/clinic.db
+	 * @throws IOException
+	 */
+	public void saveClinic() throws IOException {
+		makeDirIfNotExists();
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(DIRECTORY + "\\clinic.db"));
+		out.writeObject(this);
+		out.close();
+	}
+
+	private void makeDirIfNotExists() {
+		// TODO Auto-generated method stub
+		
+		File dir = new File(DIRECTORY);
+		if(!dir.exists()) {
+			dir.mkdirs();
+		}
+		
+	}
+	
+	/**
+	 * This method will load a Clinic from clinics/clinic.db
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public void loadClinic() throws IOException, ClassNotFoundException{
+		Clinic newClinic = loadDb();
+		this.appointments.clear();
+		this.appointments.addAll(newClinic.appointments);
+		this.patients.clear();
+		this.patients.addAll(newClinic.patients);
+		this.payments.clear();
+		this.payments.addAll(newClinic.payments);
+		this.providers.clear();
+		this.providers.addAll(newClinic.providers);
+		this.users.clear();
+		this.users.addAll(newClinic.users);
+		
+		
+	}
+	
+	private static Clinic loadDb() throws FileNotFoundException, IOException, ClassNotFoundException {
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(DIRECTORY + "\\clinic.db"));
+		Clinic newClinic = (Clinic) in.readObject();
+		in.close();
+		return newClinic;
+	}
 	
 }
