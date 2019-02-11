@@ -53,6 +53,8 @@ public class UserInteraction implements UserInterface{
 		}
 	}
 
+	
+	
 	@Override
 	public PatientSearchCriteria searchPatients() {
 		String firstName = ConsoleIO.promptForInput("Enter the first name or leave empty: ", true);
@@ -119,7 +121,7 @@ public class UserInteraction implements UserInterface{
 			String memberID = ConsoleIO.promptForInput("Enter the patient's member ID: ", false);
 			insurance = new InsuranceInfo(company, groupID, memberID);
 		}
-		long number = ConsoleIO.promptForLong("Enter the card number: ", 0, Long.MAX_VALUE);
+		long number = ConsoleIO.promptForLong("Enter the card number: ", 1000000000000000L, 9999999999999999L);
 		int year = ConsoleIO.promptForInt("Enter the year expiration date of the card: ", 1950, 2050);
 		int month = ConsoleIO.promptForInt("Enter the month expiration date of the card: ", 1, 12);
 		YearMonth expirationDate = YearMonth.of(year, month);
@@ -293,6 +295,7 @@ public class UserInteraction implements UserInterface{
 		return procedure;
 	}
 
+	@Override
 	public String getProcedureCode() {
 		return ConsoleIO.promptForInput("Enter the procedure code: ", false);
 	}
@@ -385,6 +388,7 @@ public class UserInteraction implements UserInterface{
 
 	@Override
 	public User addUser() {
+		
 		String username = ConsoleIO.promptForInput("Enter the username: ", false);
 		String password = ConsoleIO.promptForInput("Enter the password: ", false);
 		String[] options = {"Admin", "Standard"}; 
@@ -428,9 +432,10 @@ public class UserInteraction implements UserInterface{
 	}
 
 	@Override
-	public void printList(String string) {
-		// TODO Auto-generated method stub
+	public void printList(String list) {
+		System.out.println(list);
 		
 	}
+
 
 }

@@ -19,15 +19,16 @@ public class Clinic implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	private static final String DIRECTORY = "clinics";
 	
 	private List<User> users = new ArrayList<>();
 	private List<Patient> patients = new ArrayList<>();
 	private List<Payment> payments = new ArrayList<>();
 	private List<Provider> providers = new ArrayList<>();
 	private List<Appointment> appointments = new ArrayList<>();
+	private List<Procedure> procedures = new ArrayList<>();
 	
+	
+	private static final String DIRECTORY = "clinics";
 	/**
 	 * This method will retrieve the list of users in the clinic
 	 * @return List<User>
@@ -66,6 +67,14 @@ public class Clinic implements Serializable{
 	 */
 	public List<Appointment> getAppointments() {
 		return this.appointments;
+	}
+	
+	/**
+	 * This will return the list of procedures in the system
+	 * @return List<Procedure>
+	 */
+	public List<Procedure> getProcedures() {
+		return this.procedures;
 	}
 	
 	/**
@@ -176,6 +185,14 @@ public class Clinic implements Serializable{
 		appointments.add(appointment);
 	}
 	
+	
+	public void addProcedure(Procedure procedure) {
+		if(procedure == null) {
+			throw new IllegalArgumentException("\"procedure\" cannot be null");
+		}
+		procedures.add(procedure);
+	}
+	
 	/**
 	 * This method will add a payment into the list of payments	
 	 * @param Payment payment
@@ -261,6 +278,22 @@ public class Clinic implements Serializable{
 			}
 		}
 		return patients;
+	}
+	
+	public List<Procedure> searchProcedures(ProcedureSearchCriteria criteria) {
+		List<Procedure> procedures = new ArrayList<>(this.procedures);
+		for(Procedure p : new ArrayList<>(procedures)) {
+			boolean removeThis = false;
+			if(criteria.getProcedureCode() != null) {
+				if(!criteria.getProcedureCode().equals(p.getCode())) {
+					removeThis = true;
+				}
+			}
+			if(removeThis) {
+				procedures.remove(p);
+			}
+		}
+		return procedures;
 	}
 	
 	
@@ -403,6 +436,21 @@ public class Clinic implements Serializable{
 	public String patientsToString(List<Patient> list) {
 		
 		
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < list.size(); i++) {
+			sb.append(i).append(": ").append(list.get(i)).append("\n");
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * This method will take in a list of procedures and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<Procedure> list
+	 * @return String
+	 */
+	public String proceduresToString(List<Procedure> list) {
 		StringBuilder sb = new StringBuilder();
 		
 		for(int i = 0; i < list.size(); i++) {
@@ -651,5 +699,6 @@ public class Clinic implements Serializable{
 		in.close();
 		return newClinic;
 	}
+	
 	
 }

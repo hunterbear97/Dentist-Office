@@ -2,15 +2,6 @@ package edu.neumont.lytle.dentistoffice.models;
 
 import java.util.List;
 
-import edu.neumont.lytle.dentistoffice.models.Appointment;
-import edu.neumont.lytle.dentistoffice.models.AppointmentSearchCriteria;
-import edu.neumont.lytle.dentistoffice.models.Clinic;
-import edu.neumont.lytle.dentistoffice.models.Patient;
-import edu.neumont.lytle.dentistoffice.models.PatientSearchCriteria;
-import edu.neumont.lytle.dentistoffice.models.Provider;
-import edu.neumont.lytle.dentistoffice.models.ProviderSearchCriteria;
-import edu.neumont.lytle.dentistoffice.models.User;
-import edu.neumont.lytle.dentistoffice.models.UserRole;
 import edu.neumont.lytle.dentistoffice.view.UserInterface;
 
 public class ClinicManager {
@@ -26,7 +17,7 @@ public class ClinicManager {
 		}
 		this.ui = ui;
 		
-		currentUser = login();
+		login();
 		boolean wantsToExit = false;
 		do {
 			int userChoice = ui.userMenuSelection(currentUser.getRole() == UserRole.Admin);
@@ -40,7 +31,7 @@ public class ClinicManager {
 				editPatient();
 			}
 			else if(userChoice == 4) {
-				//searchPatients();
+				ui.printList(clinic.patientsToString(searchPatients()));
 			}
 			else if(userChoice == 5) {
 				addProvider();
@@ -52,7 +43,7 @@ public class ClinicManager {
 				editProvider();
 			}
 			else if(userChoice == 8) {
-				//searchProviders();
+				ui.printList(clinic.providersToString(searchProviders()));
 			}
 			else if(userChoice == 9) {
 				addProcedure();
@@ -64,7 +55,7 @@ public class ClinicManager {
 				editProcedure();
 			}
 			else if(userChoice == 12) {
-				//searchProcedures();
+				ui.printList(clinic.proceduresToString(searchProcedures()));
 			}
 			else if(userChoice == 13) {
 				addAppointment();
@@ -76,7 +67,7 @@ public class ClinicManager {
 				editAppointment();
 			}
 			else if(userChoice == 16) {
-				//searchAppointments();
+				ui.printList(clinic.appointmentsToString(searchAppointments()));
 			}
 			else if(userChoice == 17) {
 				changePassword();
@@ -88,7 +79,7 @@ public class ClinicManager {
 				removeUser();
 			}
 			else if(userChoice == 20) {
-				//searchUsers();
+				ui.printList(clinic.usersToString(clinic.getUsers()));
 			}
 			else {
 				wantsToExit = true;
@@ -97,30 +88,29 @@ public class ClinicManager {
 		}while(!wantsToExit);
 	}
 	
-	private User login() {
+	private void login() {
 		List<User> users = clinic.getUsers();
 		if(users.isEmpty()) {
 			Admin administrator = new Admin("Administrator", "1234Password", UserRole.Admin);
 			clinic.addUser(administrator);
 		}
-		User userInQuestion = null;
 		do {
 			String userName = ui.inputUsername();
 			
 			for(User u : users) {
 				if(u.getUserName().equals(userName)) {
-					userInQuestion = u;
+					currentUser = u;
 				}
 			}
 			
-			if(userInQuestion == null) {
+			if(currentUser == null) {
 				ui.noFoundUser();
 			}
-		}while(userInQuestion == null);
+		}while(currentUser == null);
 		boolean correctPassword = false;
 		do{
 			String password = ui.inputPassword();
-			if(password.equals(userInQuestion.getPassword())) {
+			if(password.equals(currentUser.getPassword())) {
 				correctPassword = true;
 			}
 			else {
@@ -128,33 +118,44 @@ public class ClinicManager {
 			}
 			
 		}while(!correctPassword);
-		
-		return userInQuestion;
+		if(currentUser.getPassword().equals("1234Password")) {
+			changePassword();
+		}
 	}
 	
-	private void searchPatients() {
+	private List<Patient> searchPatients() {
 		PatientSearchCriteria psc = ui.searchPatients();
 		
 		List<Patient> patients = clinic.searchPatients(psc);
-		
+		return patients;
 		//TODO ToString and display;
 	}
 	
-	private void searchProviders() {
+	private List<Provider> searchProviders() {
 		ProviderSearchCriteria psc  = ui.searchProviders();
 		
 		List<Provider> providers = clinic.searchProviders(psc);
-		
+		return providers;
 		//TODO ToString and display;
 	}
 	
-	private void searchAppointments() {
+	private List<Appointment> searchAppointments() {
 		Provider prov = getProvider();
 		Patient pat = getPatient();
 		AppointmentSearchCriteria asc = ui.searchAppointments(prov, pat);
 		
 		List<Appointment> appointments = clinic.searchAppointments(asc);
+		return appointments;
 	}
+	
+
+	private List<Procedure> searchProcedures() {
+		ProcedureSearchCriteria psc  = new ProcedureSearchCriteria(ui.getProcedureCode());
+		
+		List<Procedure> procedures = clinic.searchProcedures(psc);
+		return procedures;
+	}
+
 	
 	private void addPatient() {
 		Patient p = ui.addPatient();
@@ -289,7 +290,7 @@ public class ClinicManager {
 	
 	private void changePassword() {
 		User user = currentUser;
-		if(user.getRole().equals(UserRole.Admin)) {
+		if(user.getRole() == UserRole.Admin && !user.getPassword().equals("1234Password")) {
 			user = getUser();			
 		}
 		ui.changePassword(user);

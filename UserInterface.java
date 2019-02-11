@@ -64,5 +64,7 @@ public interface UserInterface {
 	void editProcedure(Procedure procedure);
 
 	void changePassword(User user);
+
+	String getProcedureCode();
 	
 }
