@@ -1,5 +1,7 @@
 package edu.neumont.lytle.dentistoffice.models;
 
-public enum PaymentMethod {
+import java.io.Serializable;
+
+public enum PaymentMethod implements Serializable{
 	Insurance, OutOfPocket
 }

@@ -1,5 +1,8 @@
 package edu.neumont.lytle.dentistoffice.view;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import edu.neumont.lytle.dentistoffice.models.Appointment;
 import edu.neumont.lytle.dentistoffice.models.AppointmentSearchCriteria;
 import edu.neumont.lytle.dentistoffice.models.Patient;
@@ -25,7 +28,7 @@ public interface UserInterface {
 	
 	Patient addPatient();
 	
-	int removePatient();
+	int selectPatient(int patientAmount);
 	
 	void editPatient(Patient patient);
 	
@@ -33,7 +36,7 @@ public interface UserInterface {
 	
 	void editProvider(Provider provider);
 
-	int removeProvider();
+	int selectProvider(int providersAmount);
 	
 	Procedure addProcedure();
 	
@@ -43,19 +46,15 @@ public interface UserInterface {
 	
 	void editAppointment(Appointment appointment);
 	
-	Appointment removeAppointment();
-	
-	int adminMenu();
-	
-	String removeUser();
+	int selectAppointment(int ammountOfAppointments);
+		
+	int selectUser(int amountOfUsers);
 	
 	User addUser();
 	
 	void noFoundUser();
 	
 	void invalidPassword();
-	
-	int printMent();
 	
 	void printList(String string);
 
@@ -66,5 +65,23 @@ public interface UserInterface {
 	void changePassword(User user);
 
 	String getProcedureCode();
+
+	boolean askForProviderSelection();
+
+	boolean askForPatientSelection();
 	
+	LocalDateTime promptForStartDateTime();
+	
+	LocalDateTime promptForEndDateTime();
+	
+	LocalDate promptForStartDate();
+	
+	LocalDate promptForEndDate();
+	
+	boolean promptDayOrMonth();
+//	int promptForYear();
+//	
+//	int promptForDay();
+//	
+//	int promptForMonth();
 }

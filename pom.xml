@@ -3,4 +3,16 @@
   <groupId>edu.neumont.lytle</groupId>
   <artifactId>dentist-office</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+  		<groupId>edu.neumont.lytle</groupId>
+ 	 	<artifactId>dentist-office</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>edu.neumont.lytle</groupId>
+ 	 	<artifactId>console-io</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>

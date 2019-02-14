@@ -1,5 +1,6 @@
 package edu.neumont.lytle.dentistoffice.view;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 
@@ -19,27 +20,28 @@ import edu.neumont.lytle.dentistoffice.models.ProviderType;
 import edu.neumont.lytle.dentistoffice.models.StandardUser;
 import edu.neumont.lytle.dentistoffice.models.User;
 import edu.neumont.lytle.dentistoffice.models.UserRole;
-import lib.ConsoleIO;
+import edu.neumont.lytle.lib.ConsoleIO;
+
 
 public class UserInteraction implements UserInterface{
 
-	@Override
+
 	public String inputUsername() {
 		return ConsoleIO.promptForInput("Enter Username: ", false);
 	}
 
-	@Override
+
 	public String inputPassword() {
 		return ConsoleIO.promptForInput("Enter Password: ", false);
 	}
 
-	@Override
+
 	public int userMenuSelection(boolean isAdmin) {
 		if(isAdmin) {
 			String[] options = {"Add Patient", "Remove Patient", "Edit Patient", "View Patients",
 								"Add Provider", "Remove Provider", "Edit Provider", "View Providers",
 								"Add Procedure", "Remove Procedure", "Edit Procedure", "View Procedures",
-								"Add Appointment", "Remove Appointment", "Edit Appointment", "View Appointments",
+								"Add Appointment", "Remove Appointment", "Edit Appointment", "View Appointments", "get Patient Balance", "Get Generated Revanue", "Get Collections", "Logout",
 								"Change User Password", "Add User", "Remove User", "View Users"};
 			return ConsoleIO.promptForMenuSelection(options, true);
 		}
@@ -47,7 +49,7 @@ public class UserInteraction implements UserInterface{
 			String[] options = {"Add Patient", "Remove Patient", "Edit Patient", "View Patients",
 								"Add Provider", "Remove Provider", "Edit Provider", "View Providers",
 								"Add Procedure", "Remove Procedure", "Edit Procedure", "View Procedures",
-								"Add Appointment", "Remove Appointment", "Edit Appointment", "View Appointments",
+								"Add Appointment", "Remove Appointment", "Edit Appointment", "View Appointments", "Get Patient Balance", "Get Generated Revanue", "Get Collections","Logout",
 								"Change Password"};
 			return ConsoleIO.promptForMenuSelection(options, true);
 		}
@@ -55,7 +57,7 @@ public class UserInteraction implements UserInterface{
 
 	
 	
-	@Override
+	
 	public PatientSearchCriteria searchPatients() {
 		String firstName = ConsoleIO.promptForInput("Enter the first name or leave empty: ", true);
 		String lastName = ConsoleIO.promptForInput("Enter the last name or leave empty: ", true);
@@ -64,7 +66,7 @@ public class UserInteraction implements UserInterface{
 		return psc;
 	}
 
-	@Override
+	
 	public ProviderSearchCriteria searchProviders() {
 		String firstName = ConsoleIO.promptForInput("Enter the first name or leave empty: ", true);
 		String lastName = ConsoleIO.promptForInput("Enter the last name or leave empty: ", true);
@@ -84,26 +86,30 @@ public class UserInteraction implements UserInterface{
 		return psc;
 	}
 
-	@Override
+	
 	public AppointmentSearchCriteria searchAppointments(Provider prov, Patient pat) {
-		String code = getProcedureCode();
-		int year = ConsoleIO.promptForInt("Enter the start year: ", 1950, 2050);
-		int month = ConsoleIO.promptForInt("Enter the start month: ", 1, 12);
-		int day = ConsoleIO.promptForInt("Enter the start day: ", 1, 31);
-		int hour = ConsoleIO.promptForInt("Enter the start hour: ", 0, 23);
-		int minute = ConsoleIO.promptForInt("Enter the start day: ", 0, 59);
-		LocalDateTime start = LocalDateTime.of(year, month, day, hour, minute);
-		year = ConsoleIO.promptForInt("Enter the end year: ", 1950, 2050);
-		month = ConsoleIO.promptForInt("Enter the end month: ", 1, 12);
-		day = ConsoleIO.promptForInt("Enter the end day: ", 1, 31);
-		hour = ConsoleIO.promptForInt("Enter the end hour: ", 0, 23);
-		minute = ConsoleIO.promptForInt("Enter the end day: ", 0, 59);
-		LocalDateTime end = LocalDateTime.of(year, month, day, hour, minute);
+		boolean wantsProcedureCode = ConsoleIO.promptForBool("Do you want to enter a procedure code? Y/N ", "Y", "N");
+		String code = null;
+		if(wantsProcedureCode) {
+			code = getProcedureCode();			
+		}
+		
+		LocalDateTime start = null;
+		
+		boolean wantsStartDate = ConsoleIO.promptForBool("Do you want to enter a start date? Y/N ", "Y", "N");
+		if(wantsStartDate) {
+			start = this.promptForStartDateTime();
+		}
+		LocalDateTime end = null;
+		boolean wantsEndDate = ConsoleIO.promptForBool("Do you want to enter an end date? Y/N ", "Y", "N");
+		if(wantsEndDate) {			
+			end = this.promptForEndDateTime();
+		}
 		AppointmentSearchCriteria apc = new AppointmentSearchCriteria(start, end, prov, pat, code);
 		return apc;
 	}
 	
-	@Override
+	
 	public Patient addPatient() {
 		String firstName = ConsoleIO.promptForInput("Enter the first name: ", false);
 		String lastName = ConsoleIO.promptForInput("Enter the last name: ", false);
@@ -137,12 +143,19 @@ public class UserInteraction implements UserInterface{
 		return ConsoleIO.promptForInt("Enter the patient's unique ID: ", 0, Integer.MAX_VALUE);
 	}
 	
-	@Override
-	public int removePatient() {
-		return getPatientUID();
+	
+	public int selectPatient(int patientAmount) {
+		
+		if(patientAmount == 0) {
+			ConsoleIO.displayMessage("There are no patients in the list");
+			return -1;
+		}
+		
+		return ConsoleIO.promptForInt("Enter the index of the patient: ", 0, patientAmount - 1);
+		
 	}
 
-	@Override
+	
 	public void editPatient(Patient patient) {
 		boolean editMore = true;
 		do {
@@ -200,7 +213,7 @@ public class UserInteraction implements UserInterface{
 		} while(editMore);
 	}
 
-	@Override
+	
 	public Provider addProvider() {
 		String firstName = ConsoleIO.promptForInput("Enter the first name: ", false);
 		String lastName = ConsoleIO.promptForInput("Enter the last name: ", false);
@@ -230,7 +243,7 @@ public class UserInteraction implements UserInterface{
 		return ConsoleIO.promptForInt("Enter the provider's unique ID: ", 0, Integer.MAX_VALUE);
 	}
 	
-	@Override
+	
 	public void editProvider(Provider provider) {
 		boolean editMore = true;
 		do {
@@ -281,12 +294,12 @@ public class UserInteraction implements UserInterface{
 		} while(editMore);
 	}
 
-	@Override
-	public int removeProvider() {
-		return getProviderUID();
+	
+	public int selectProvider(int providersAmount) {
+		return ConsoleIO.promptForInt("Please select the index of the provider you want: ", 0, providersAmount - 1);
 	}
 
-	@Override
+	
 	public Procedure addProcedure() {
 		String code = ConsoleIO.promptForInput("Enter the procedure code: ", false);
 		String description = ConsoleIO.promptForInput("Enter the procedure description: ", false);
@@ -295,17 +308,17 @@ public class UserInteraction implements UserInterface{
 		return procedure;
 	}
 
-	@Override
+	
 	public String getProcedureCode() {
 		return ConsoleIO.promptForInput("Enter the procedure code: ", false);
 	}
 	
-	@Override
+	
 	public String removeProcedure() {
 		return getProcedureCode();
 	}
 
-	@Override
+	
 	public void editProcedure(Procedure procedure) {
 		boolean editMore = true;
 		do {
@@ -330,7 +343,7 @@ public class UserInteraction implements UserInterface{
 		} while(editMore);
 	}
 	
-	@Override
+	
 	//when we add an appointment, we assume it will be in the future
 	//adding an appointment to the past is not useful for now
 	public Appointment addAppointment(Patient pat) {
@@ -344,7 +357,7 @@ public class UserInteraction implements UserInterface{
 		return fa;
 	}
 
-	@Override
+	
 	public void editAppointment(Appointment appointment) {
 		boolean editMore = true;
 		do {
@@ -367,26 +380,21 @@ public class UserInteraction implements UserInterface{
 		
 	}
 
-	@Override
+	
 	//pass in a patient and from a list/menu remove one of their appointments?
-	public Appointment removeAppointment() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int adminMenu() {
+	public int selectAppointment(int appointmentAmount) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
-	public String removeUser() {
-		return ConsoleIO.promptForInput("Enter the username: ", false);
+
+	
+	public int selectUser(int amountOfUsers) {
+		return ConsoleIO.promptForInt("Enter the index of the user: ", 0, amountOfUsers - 1);
 		
 	}
 
-	@Override
+	
 	public User addUser() {
 		
 		String username = ConsoleIO.promptForInput("Enter the username: ", false);
@@ -407,34 +415,100 @@ public class UserInteraction implements UserInterface{
 		return null;
 	}
 
-	@Override
+	
 	public void changePassword(User user) {
 		String newPassword = ConsoleIO.promptForInput("Enter the new password: ", false);
 		user.setPassword(newPassword);
 	}
 
-	@Override
+	
 	public void noFoundUser() {
-		// TODO Auto-generated method stub
-		System.out.println("The object that you searched for does not exist.");
+		ConsoleIO.displayMessage("The object that you searched for does not exist.");
 	}
 
-	@Override
+	
 	public void invalidPassword() {
-		// TODO Auto-generated method stub
-		
+		ConsoleIO.displayMessage("The password you entered was invalid.");
 	}
 
-	@Override
-	public int printMent() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
+	
 	public void printList(String list) {
 		System.out.println(list);
 		
+	}
+	
+	public boolean askForProviderSelection() {
+		return ConsoleIO.promptForBool("Would you like to select a provider? Y/N ", "Y", "N");
+	}
+
+
+	public boolean askForPatientSelection() {
+		return ConsoleIO.promptForBool("Would you like to select a provider? Y/N ", "Y", "N");
+	}
+
+
+	private int promptForYear() {
+		return ConsoleIO.promptForInt("Enter the year: ", 1950, 2050);
+		
+	}
+
+
+	private int promptForMonth() {
+		
+		int month = ConsoleIO.promptForInt("Enter the month: ", 1, 12);
+		return month;
+	}
+
+
+	private int promptForDay() {
+		int day = ConsoleIO.promptForInt("Enter the day: ", 1, 31);
+		return day;
+	}
+
+
+	public LocalDateTime promptForStartDateTime() {
+		ConsoleIO.displayMessage("Please enter the start date");
+		int year = this.promptForYear();
+		int month = this.promptForMonth();
+		int day = this.promptForDay();
+		LocalDateTime date = LocalDateTime.of(year, month, day, 0, 0);
+		return date;
+	}
+
+
+	public LocalDateTime promptForEndDateTime() {
+		ConsoleIO.displayMessage("Please enter the end date");
+		int year = this.promptForYear();
+		int month = this.promptForMonth();
+		int day = this.promptForDay();
+		LocalDateTime date = LocalDateTime.of(year, month, day, 23, 59);
+		return date;
+	}
+
+
+	public LocalDate promptForStartDate() {
+		ConsoleIO.displayMessage("Please enter the start date");
+		int year = this.promptForYear();
+		int month = this.promptForMonth();
+		int day = this.promptForDay();
+		LocalDate date = LocalDate.of(year, month, day);
+		return date;
+//		return null;
+	}
+
+
+	public LocalDate promptForEndDate() {
+		ConsoleIO.displayMessage("Please enter the end date");
+		int year = this.promptForYear();
+		int month = this.promptForMonth();
+		int day = this.promptForDay();
+		LocalDate date = LocalDate.of(year, month, day);
+		return date;
+	}
+
+
+	public boolean promptDayOrMonth() {
+		return ConsoleIO.promptForBool("Would yu like to group by day or month? D/M ", "D", "M");
 	}
 
 

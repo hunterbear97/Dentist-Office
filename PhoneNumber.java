@@ -1,6 +1,8 @@
 package edu.neumont.lytle.dentistoffice.models;
 
-public class PhoneNumber {
+import java.io.Serializable;
+
+public class PhoneNumber implements Serializable{
 	private int areaCode;
 	private int prefix;
 	private int line;

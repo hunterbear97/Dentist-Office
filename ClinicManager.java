@@ -1,7 +1,22 @@
-package edu.neumont.lytle.dentistoffice.models;
+package edu.neumont.lytle.dentistoffice.controller;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import edu.neumont.lytle.dentistoffice.models.Admin;
+import edu.neumont.lytle.dentistoffice.models.Appointment;
+import edu.neumont.lytle.dentistoffice.models.AppointmentSearchCriteria;
+import edu.neumont.lytle.dentistoffice.models.Clinic;
+import edu.neumont.lytle.dentistoffice.models.Patient;
+import edu.neumont.lytle.dentistoffice.models.PatientSearchCriteria;
+import edu.neumont.lytle.dentistoffice.models.Procedure;
+import edu.neumont.lytle.dentistoffice.models.ProcedureSearchCriteria;
+import edu.neumont.lytle.dentistoffice.models.Provider;
+import edu.neumont.lytle.dentistoffice.models.ProviderSearchCriteria;
+import edu.neumont.lytle.dentistoffice.models.User;
+import edu.neumont.lytle.dentistoffice.models.UserRole;
 import edu.neumont.lytle.dentistoffice.view.UserInterface;
 
 public class ClinicManager {
@@ -11,12 +26,20 @@ public class ClinicManager {
 	
 	User currentUser;
 	
-	public void run(UserInterface ui) {
+	public void run(UserInterface ui) throws IOException {
 		if(ui == null) {
 			throw new IllegalArgumentException("\"ui\" cannot be null");
 		}
 		this.ui = ui;
 		
+		//File f = new File("clinic\\clinic.db");
+		//if(f.exists()) {
+			try {
+				clinic.loadClinic();
+			} catch (ClassNotFoundException | IOException e) {
+				clinic.saveClinic();
+			}
+		//}
 		login();
 		boolean wantsToExit = false;
 		do {
@@ -70,24 +93,67 @@ public class ClinicManager {
 				ui.printList(clinic.appointmentsToString(searchAppointments()));
 			}
 			else if(userChoice == 17) {
-				changePassword();
+				getPatientBalance();
 			}
 			else if(userChoice == 18) {
-				addUser();
+				getGeneratedRevanue();
 			}
 			else if(userChoice == 19) {
-				removeUser();
+				getPayments();
 			}
 			else if(userChoice == 20) {
+				logout();
+			}
+			else if(userChoice == 21) {
+				changePassword();
+			}
+			else if(userChoice == 22) {
+				addUser();
+			}
+			else if(userChoice == 23) {
+				removeUser();
+			}
+			else if(userChoice == 24) {
 				ui.printList(clinic.usersToString(clinic.getUsers()));
 			}
 			else {
 				wantsToExit = true;
 			}
-			
+			clinic.saveClinic();
+
 		}while(!wantsToExit);
+		
 	}
 	
+	private void getPayments() {
+		LocalDate startDate = ui.promptForStartDate();
+		LocalDate endDate = ui.promptForEndDate();
+		boolean isDaily = ui.promptDayOrMonth();
+		String payments = clinic.getCollections(startDate, endDate, isDaily);
+		ui.printList(payments);
+		
+	}
+
+	private void getGeneratedRevanue() {
+		LocalDateTime startDate = ui.promptForStartDateTime();
+		LocalDateTime endDate = ui.promptForEndDateTime();
+		boolean isDaily = ui.promptDayOrMonth();
+		String revanue = clinic.getRevenueGenerated(startDate, endDate, isDaily);
+		ui.printList(revanue);
+		
+	}
+
+	private void getPatientBalance() {
+		Patient p = this.getPatient();
+		clinic.getAccountBalance(p);
+	}
+
+	private void logout() {
+		this.currentUser = null;
+		this.login();
+		
+	}
+
 	private void login() {
 		List<User> users = clinic.getUsers();
 		if(users.isEmpty()) {
@@ -128,7 +194,6 @@ public class ClinicManager {
 		
 		List<Patient> patients = clinic.searchPatients(psc);
 		return patients;
-		//TODO ToString and display;
 	}
 	
 	private List<Provider> searchProviders() {
@@ -136,12 +201,24 @@ public class ClinicManager {
 		
 		List<Provider> providers = clinic.searchProviders(psc);
 		return providers;
-		//TODO ToString and display;
+		
 	}
 	
 	private List<Appointment> searchAppointments() {
-		Provider prov = getProvider();
-		Patient pat = getPatient();
+		boolean wantsProvider = ui.askForProviderSelection();
+		Provider prov = null;
+		Patient pat = null;
+		if(wantsProvider) {
+			int providerIndex = ui.selectProvider(clinic.getProviders().size());
+			prov = clinic.getProvider(providerIndex);
+		}
+		boolean wantsPatient = ui.askForPatientSelection();
+		if(wantsPatient) {
+			int patientIndex = ui.selectPatient(clinic.getPatients().size());
+			pat  = clinic.getPatient(patientIndex);
+		}
+		
+		
 		AppointmentSearchCriteria asc = ui.searchAppointments(prov, pat);
 		
 		List<Appointment> appointments = clinic.searchAppointments(asc);
@@ -163,25 +240,19 @@ public class ClinicManager {
 	}
 	
 	private Patient getPatient() {
-		Patient p = null;
-		int uid = ui.getPatientUID();
 		List<Patient> patients = clinic.getPatients();
-		for(Patient pat : patients) {
-			if(pat.getUid() == uid) {
-				p = pat;
-			}
-			break;
+		ui.printList(clinic.patientsToString(patients));
+		int patientIndex = ui.selectPatient(patients.size());
+		if(patientIndex == -1) {
+			return null;
 		}
-		if(p == null) {
-			ui.noFoundUser();
-		}
-		return p;
+		return patients.get(patientIndex);
 	}
 	
 	private void removePatient() {
-		Patient p = getPatient();
 		List<Patient> patients = clinic.getPatients();
-		patients.remove(p);
+		
+		patients.remove(this.getPatient());
 	}
 	
 	private void editPatient() {
@@ -194,27 +265,28 @@ public class ClinicManager {
 		clinic.addProvider(p);
 	}
 	
-	private Provider getProvider() {
-		Provider p = null;
-		int uid = ui.removeProvider();
-		List<Provider> providers = clinic.getProviders();
-		for(Provider prov : providers) {
-			if(prov.getUid() == uid) {
-				p = prov;
-			}
-			break;
-		}
-		return p;
-	}
+//	private Provider getProvider() {
+//		Provider p = null;
+//		int uid = ui.removeProvider();
+//		List<Provider> providers = clinic.getProviders();
+//		for(Provider prov : providers) {
+//			if(prov.getUid() == uid) {
+//				p = prov;
+//			}
+//			break;
+//		}
+//		return p;
+//	}
 	
 	private void removeProvider() {
-		Provider p = getProvider();
-		List<Provider> providers = clinic.getProviders();
-		providers.remove(p);
+		ui.printList(clinic.providersToString(clinic.getProviders()));
+		int providerIndex = ui.selectProvider(clinic.getProviders().size());
+		clinic.removeProvider(providerIndex);
 	}
 	
 	private void editProvider() {
-		Provider p = getProvider();
+		int selectedProvider = ui.selectProvider(clinic.getProviders().size());
+		Provider p = clinic.getProvider(selectedProvider);
 		ui.editProvider(p);
 	}
 	
@@ -251,13 +323,13 @@ public class ClinicManager {
 		Patient pat = getPatient();
 		Appointment a = ui.addAppointment(pat);
 		clinic.addAppointment(a);
-		//TODO create addAppointment class in clinic
 	}
 	
 	private void removeAppointment() {
-		Appointment a = ui.removeAppointment();
+		ui.printList(clinic.appointmentsToString(clinic.getAppointments()));
+		int appointmentSelected = ui.selectAppointment(clinic.getAppointments().size());
 		List<Appointment> appointments = clinic.getAppointments();
-		appointments.remove(a);
+		appointments.remove(appointmentSelected);
 	}
 	
 	private void editAppointment() {
@@ -283,9 +355,9 @@ public class ClinicManager {
 	}
 	
 	private void removeUser() {
-		User user = getUser();
-		List<User> users = clinic.getUsers();
-		users.remove(user);
+		ui.printList(clinic.usersToString(clinic.getUsers()));
+		int userIndex = ui.selectUser(clinic.getUsers().size());
+		clinic.removeUser(userIndex);
 	}
 	
 	private void changePassword() {

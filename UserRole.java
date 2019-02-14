@@ -1,6 +1,8 @@
 package edu.neumont.lytle.dentistoffice.models;
 
-public enum UserRole {
+import java.io.Serializable;
+
+public enum UserRole implements Serializable{
 	Admin,
 	Standard
 }

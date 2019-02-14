@@ -1,5 +1,7 @@
 package edu.neumont.lytle.dentistoffice.models;
 
-public enum ProviderType {
+import java.io.Serializable;
+
+public enum ProviderType implements Serializable {
 	Dentist, Hygenist, Assistant
 }

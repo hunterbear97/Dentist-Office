@@ -19,6 +19,8 @@ public class Clinic implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private static final String DIRECTORY = "clinics";
 	
 	private List<User> users = new ArrayList<>();
 	private List<Patient> patients = new ArrayList<>();
@@ -26,15 +28,25 @@ public class Clinic implements Serializable{
 	private List<Provider> providers = new ArrayList<>();
 	private List<Appointment> appointments = new ArrayList<>();
 	private List<Procedure> procedures = new ArrayList<>();
-	
-	
-	private static final String DIRECTORY = "clinics";
+
 	/**
 	 * This method will retrieve the list of users in the clinic
 	 * @return List<User>
 	 */
 	public List<User> getUsers() {
 		return this.users;
+	}
+	
+	/**
+	 * This method takes in the index of a user and removes the user in that index from the list
+	 * @param int userIndex
+	 */
+	public void removeUser(int userIndex) {
+		if(userIndex < 0 || userIndex >= users.size()) {
+			throw new IllegalArgumentException("\"userIndex\" must be in the bounds of the users list");
+		}
+		
+		users.remove(userIndex);
 	}
 	
 	/**
@@ -117,12 +129,12 @@ public class Clinic implements Serializable{
 		
 		for(Provider p : new ArrayList<>(providers)) {
 			boolean removeThis = false;
-			if(psc.getFirstName() != null) {
+			if(psc.getFirstName() != null && !psc.getFirstName().isEmpty()) {
 				if(!psc.getFirstName().equals(p.getFirstName())) {
 					removeThis = true;
 				}
 			}
-			if(psc.getLastName() != null) {
+			if(psc.getLastName() != null && !psc.getFirstName().isEmpty()) {
 				if(!psc.getLastName().equals(p.getLastName())) {
 					removeThis = true;
 				}
@@ -185,14 +197,6 @@ public class Clinic implements Serializable{
 		appointments.add(appointment);
 	}
 	
-	
-	public void addProcedure(Procedure procedure) {
-		if(procedure == null) {
-			throw new IllegalArgumentException("\"procedure\" cannot be null");
-		}
-		procedures.add(procedure);
-	}
-	
 	/**
 	 * This method will add a payment into the list of payments	
 	 * @param Payment payment
@@ -204,17 +208,25 @@ public class Clinic implements Serializable{
 		payments.add(payment);
 	}
 	
-	private Patient getPatient(int uniqueID) {
-		
-		Patient patient = null;
-		
-		for(Patient p : patients) {
-			if(p.getUid() == uniqueID) {
-				patient = p;
-			}
+	/**
+	 * This method takes in an instance of procedure and adds it to the list
+	 * @param procedure
+	 */
+	
+	public void addProcedure(Procedure procedure) {
+		if(procedure == null) {
+			throw new IllegalArgumentException("\"procedure\" cannot be null");
 		}
-		
-		return patient;
+		procedures.add(procedure);
+	}
+	
+	/**
+	 * gets a patient based on index from list
+	 * @param patientIndex
+	 * @return
+	 */
+	public Patient getPatient(int patientIndex) {
+		return patients.get(patientIndex);
 	}
 	
 	/**
@@ -222,9 +234,8 @@ public class Clinic implements Serializable{
 	 * @param int uniqueId
 	 * @return double
 	 */
-	public double getAccountBalance(int uniqueId) {
+	public double getAccountBalance(Patient patient) {
 		
-		Patient patient = getPatient(uniqueId);
 		double total = 0;
 		
 		List<AppointmentRecord> list = this.getPastAppointment();
@@ -257,17 +268,17 @@ public class Clinic implements Serializable{
 		List<Patient> patients = new ArrayList<>(this.patients);
 		for(Patient p : new ArrayList<>(patients)) {
 			boolean removeThis = false;
-			if(criteria.getFirstName() != null) {
+			if(criteria.getFirstName() != null && !criteria.getFirstName().isEmpty()) {
 				if(!criteria.getFirstName().equals(p.getFirstName())) {
 					removeThis = true;
 				}
 			}
-			if(criteria.getLastName() != null) {
+			if(criteria.getLastName() != null && !criteria.getLastName().isEmpty()) {
 				if(!criteria.getLastName().equals(p.getLastName())) {
 					removeThis = true;
 				}
 			}
-			if(criteria.getCompanyName() != null) {
+			if(criteria.getCompanyName() != null && !criteria.getCompanyName().isEmpty()) {
 				if(!criteria.getCompanyName().equals(p.getInsurance().getCompany())) {
 					removeThis = true;
 				}
@@ -278,22 +289,6 @@ public class Clinic implements Serializable{
 			}
 		}
 		return patients;
-	}
-	
-	public List<Procedure> searchProcedures(ProcedureSearchCriteria criteria) {
-		List<Procedure> procedures = new ArrayList<>(this.procedures);
-		for(Procedure p : new ArrayList<>(procedures)) {
-			boolean removeThis = false;
-			if(criteria.getProcedureCode() != null) {
-				if(!criteria.getProcedureCode().equals(p.getCode())) {
-					removeThis = true;
-				}
-			}
-			if(removeThis) {
-				procedures.remove(p);
-			}
-		}
-		return procedures;
 	}
 	
 	
@@ -352,8 +347,8 @@ public class Clinic implements Serializable{
 					}
 				}
 			}
-				if(asc.getProvider() == null && asc.getProcedureCode() != null) {
-					for(Provider p : this.providers) {
+			if(asc.getProvider() == null && (asc.getProcedureCode() != null && !asc.getProcedureCode().isEmpty())) {
+				for(Provider p : this.providers) {
 					List<Procedure> procedures = a.getProcedures(p);
 					for(Procedure q : procedures) {
 						if(!asc.getProcedureCode().equals(q.getCode())) {
@@ -417,7 +412,9 @@ public class Clinic implements Serializable{
 	 * @return String
 	 */
 	public String providersToString(List<Provider> list) {
-		
+		if(list == null || list.isEmpty()) {
+			return "No providers found";
+		}
 		
 		StringBuilder sb = new StringBuilder();
 		
@@ -435,22 +432,9 @@ public class Clinic implements Serializable{
 	 */
 	public String patientsToString(List<Patient> list) {
 		
-		
-		StringBuilder sb = new StringBuilder();
-		
-		for(int i = 0; i < list.size(); i++) {
-			sb.append(i).append(": ").append(list.get(i)).append("\n");
+		if(list == null || list.isEmpty()) {
+			return "No patients found";
 		}
-		
-		return sb.toString();
-	}
-	
-	/**
-	 * This method will take in a list of procedures and print them out so that every object getsit's own line and has its index right next to it.
-	 * @param List<Procedure> list
-	 * @return String
-	 */
-	public String proceduresToString(List<Procedure> list) {
 		StringBuilder sb = new StringBuilder();
 		
 		for(int i = 0; i < list.size(); i++) {
@@ -466,6 +450,9 @@ public class Clinic implements Serializable{
 	 * @return String
 	 */
 	public String appointmentsToString(List<Appointment> list) {
+		if(list == null || list.isEmpty()) {
+			return "No appointments found";
+		}
 		
 		
 		StringBuilder sb = new StringBuilder();
@@ -483,6 +470,9 @@ public class Clinic implements Serializable{
 	 * @return String
 	 */
 	public String usersToString(List<User> list) {
+		if(list == null || list.isEmpty()) {
+			return "No users found";
+		}
 		
 		
 		StringBuilder sb = new StringBuilder();
@@ -500,7 +490,9 @@ public class Clinic implements Serializable{
 	 * @return String
 	 */
 	public String paymentsToString(List<Payment> list) {
-		
+		if(list == null || list.isEmpty()) {
+			return "No payments found";
+		}
 		
 		StringBuilder sb = new StringBuilder();
 		
@@ -652,7 +644,7 @@ public class Clinic implements Serializable{
 	}
 	
 	/**
-	 * This method will save the Clinic to the file clinics/clinic.db
+	 * This method will save the Clinic to the file clinics\clinic.db
 	 * @throws IOException
 	 */
 	public void saveClinic() throws IOException {
@@ -673,7 +665,7 @@ public class Clinic implements Serializable{
 	}
 	
 	/**
-	 * This method will load a Clinic from clinics/clinic.db
+	 * This method will load a Clinic from clinics\clinic.db
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
@@ -699,6 +691,58 @@ public class Clinic implements Serializable{
 		in.close();
 		return newClinic;
 	}
+
+	/**
+	 * This method will take in a list of procedures and print them out so that every object getsit's own line and has its index right next to it.
+	 * @param List<Procedure> list
+	 * @return String
+	 */
+	public String proceduresToString(List<Procedure> list) {
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < list.size(); i++) {
+			sb.append(i).append(": ").append(list.get(i)).append("\n");
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * This method will search for procedures with certain parameters and return a list of it's findings
+	 * @param criteria
+	 * @return
+	 */
+
+	public List<Procedure> searchProcedures(ProcedureSearchCriteria criteria) {
+		List<Procedure> procedures = new ArrayList<>(this.procedures);
+		for(Procedure p : new ArrayList<>(procedures)) {
+			boolean removeThis = false;
+			if(criteria.getProcedureCode() != null) {
+				if(!criteria.getProcedureCode().equals(p.getCode())) {
+					removeThis = true;
+				}
+			}
+			if(removeThis) {
+				procedures.remove(p);
+			}
+		}
+		return procedures;
+	}
+
+	/**
+	 * This method will remove the provider of the index passed in
+	 * @param providerIndex
+	 */
+	public void removeProvider(int providerIndex) {
+		this.providers.remove(providerIndex);
+		
+	}
+
+	public Provider getProvider(int selectedProvider) {
+		Provider p = this.providers.get(selectedProvider);
+		return p;
+	}
+	
 	
 	
 }
